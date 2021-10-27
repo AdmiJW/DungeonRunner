@@ -68,11 +68,17 @@ public class PlayerController : MonoBehaviour
         if (isDead) return;
 
         HandleSpeedBoost();
-        Move();
         HandleJump();
         HandleRoll();
         UpdateSpeedIncrement();
         UpdateScore();
+    }
+
+    private void FixedUpdate()
+    {
+        if (isDead) return;
+
+        Move();
     }
 
 
