@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] AudioSource deadSound;
     [SerializeField] AudioSource dashSound;
     [SerializeField] AudioSource rollSound;
+    [SerializeField] AudioSource healSound;
 
     private Animator playerAnimator;
     private Rigidbody playerRb;
@@ -212,6 +213,13 @@ public class PlayerController : MonoBehaviour
         {
             previousTriggerLocation = other.transform.position.z;
             infiniteDungeonScript.generateNewChunk();
+        }
+        else if (other.CompareTag("HealthPickup"))
+        {
+            other.gameObject.SetActive(false);
+            healthBar.value += obstacleDamage;
+
+            healSound.Play();
         }
     }
 

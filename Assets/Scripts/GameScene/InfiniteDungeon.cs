@@ -6,6 +6,7 @@ public class InfiniteDungeon : MonoBehaviour
 {
     [SerializeField] List<GameObject> obstaclePrefabs;
     [SerializeField] float obstacleGap;
+    [SerializeField] float healthPickupChance;
 
     private LinkedList<GameObject> dungeonChunks;
     private GameObject player;
@@ -47,6 +48,14 @@ public class InfiniteDungeon : MonoBehaviour
 
         // Generate obstacles
         generateNewObstacles(passedDungeonChunk);
+        spawnHealthPickup(passedDungeonChunk);
+    }
+
+
+    void spawnHealthPickup(GameObject dungeonChunk)
+    {
+        GameObject healthPickup = dungeonChunk.transform.Find("HealthPickups").gameObject;
+        healthPickup.transform.GetChild(0).gameObject.SetActive(Random.Range(0f, 1f) < healthPickupChance);
     }
 
 
