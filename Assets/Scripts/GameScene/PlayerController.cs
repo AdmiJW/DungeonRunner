@@ -8,6 +8,8 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] float maxSpeed;
+    [SerializeField] float maxSpeedIncrement;
+    [SerializeField] float maxSpeedIncrementRequirement;
     [SerializeField] float sidewaysSpeed;
     [SerializeField] float maxSpeedBoost;
     [SerializeField] float speedBoostDecay;
@@ -19,6 +21,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] AudioSource jumpSound;
     [SerializeField] AudioSource hurtSound;
     [SerializeField] AudioSource deadSound;
+    [SerializeField] AudioSource dashSound;
+    [SerializeField] AudioSource rollSound;
 
     private Animator playerAnimator;
     private Rigidbody playerRb;
@@ -31,7 +35,9 @@ public class PlayerController : MonoBehaviour
 
     private float speed = 0f;
     private float speedBoost = 0f;
+    private float untilNextSpeedIncrement;
     private float score = 0f;
+    private float obstacleCollisionRepulsion = -9f;
     private float previousZLocation;
     private bool isOnGround = true;
     private bool isDead = false;
@@ -50,6 +56,7 @@ public class PlayerController : MonoBehaviour
         gameOverScreen = GameObject.FindGameObjectWithTag("GameOverScreen");
 
         previousZLocation = transform.position.z;
+        untilNextSpeedIncrement = maxSpeedIncrementRequirement;
 
         gameOverScreen.SetActive(false);
     }
@@ -63,6 +70,7 @@ public class PlayerController : MonoBehaviour
         Move();
         HandleJump();
         HandleRoll();
+        UpdateSpeedIncrement();
         UpdateScore();
     }
 
@@ -79,6 +87,7 @@ public class PlayerController : MonoBehaviour
             Invoke("ResetDashCooldown", speedBoostCooldownDuration);
 
             dashParticle.Play();
+            dashSound.Play();
         }
     }
 
@@ -121,6 +130,20 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Roll") && isOnGround)
         {
             playerAnimator.SetTrigger("roll");
+            rollSound.Play();
+        }
+    }
+
+
+    void UpdateSpeedIncrement()
+    {
+        float passedDistance = transform.position.z - previousZLocation;
+        untilNextSpeedIncrement -= passedDistance;
+
+        if (untilNextSpeedIncrement <= 0)
+        {
+            untilNextSpeedIncrement = maxSpeedIncrementRequirement;
+            maxSpeed += maxSpeedIncrement;
         }
     }
 
@@ -163,7 +186,7 @@ public class PlayerController : MonoBehaviour
         {
             if (previouslyHitObstacle == collision.transform.parent.gameObject) return;
 
-            speed = -7f;
+            speed = obstacleCollisionRepulsion;
             speedBoost = 0f;
             previouslyHitObstacle = collision.transform.parent.gameObject;
             Destroy(collision.transform.parent.gameObject);
